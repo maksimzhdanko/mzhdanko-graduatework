@@ -1,0 +1,57 @@
+- name: Pull docker image Grafana
+  docker_image:
+    source: pull
+    name: "{{ grafana_pull_docker_image }}"
+
+- name: Create directory for config files Grafana
+  file:
+    path: "{{ grafana_directory_configs }}"
+    state: directory
+    mode: '0755'
+  when: not flush_all_env | bool
+
+- name: Copy config files for Grafana
+  copy:
+    src: "files/"
+    dest: "{{ grafana_directory_configs }}"
+    mode: 0755
+  when: not flush_all_env | bool
+
+- name: Copy template for Grafana
+  template:
+    src: datasource.yml.j2
+    dest: "{{ grafana_directory_configs }}/datasources/datasource.yml"
+  when: not flush_all_env | bool
+
+- name: Copy template systemd Grafana
+  template:
+    src: docker-grafana.service.j2
+    dest: "/etc/systemd/system/docker-grafana.service"
+    owner: "root"
+    group: "root"
+  when: not flush_all_env | bool
+
+- name: Start docker-grafana.service
+  systemd:
+    name: docker-grafana.service
+    state: started
+    enabled: yes
+    daemon_reload: true
+  when: not flush_all_env | bool
+
+- name: Stop docker-grafana.service
+  systemd:
+    name: docker-grafana.service
+    state: stopped
+    enabled: no
+    daemon_reload: true
+  when: flush_all_env | bool
+
+- name: Remove directory with config files grafana and systemd grafana
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "/etc/systemd/system/docker-grafana.service"
+    - "{{ grafana_directory_configs }}"
+  when: flush_all_env | bool

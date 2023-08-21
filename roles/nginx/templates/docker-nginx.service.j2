@@ -1,0 +1,20 @@
+[Unit]
+Description=Nginx container
+After=docker.service
+Requires=docker.service
+
+[Service]
+Restart=always
+ExecStartPre=-/usr/bin/docker rm {{ nginx_service_name }}
+ExecStart=/usr/bin/docker run \
+--rm \
+--name {{ nginx_service_name }} \
+--net {{ project_network_name }} \
+--ip {{ project_nginx_ip }} \
+-p {{ nginx_port_http }}:{{ nginx_port_http }} \
+-p {{ nginx_port_https }}:{{ nginx_port_https }} \
+-v {{ nginx_directory_hosts }}:/etc/nginx/conf.d \
+{{ nginx_pull_docker_image }}
+ExecStop=/usr/bin/docker stop {{ nginx_service_name }}
+[Install]
+WantedBy=multi-user.target

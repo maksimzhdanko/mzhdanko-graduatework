@@ -1,0 +1,13 @@
+---
+- name: Playbook for MyProject
+  hosts: prod
+  become: true
+  vars_files:
+    - secret_vars.yml
+  roles:
+    - docker
+    - nginx
+    - jenkins
+    - prometheus
+    - grafana
+    - alertmanager

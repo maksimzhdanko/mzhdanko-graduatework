@@ -1,0 +1,81 @@
+- name: Add Jenkins APT keyring
+  shell: "curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key | sudo tee /usr/share/keyrings/jenkins-keyring.asc"
+  args:
+    executable: /bin/bash
+
+- name: Add Jenkins APT repository
+  shell: sudo sh -c 'echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'
+  args:
+    executable: /bin/bash
+
+- name: Install Java
+  apt:
+    name: openjdk-11-jre
+    state: present
+    update_cache: yes
+  when: not flush_all_env | bool
+
+- name: Install Jenkins
+  apt:
+    name: jenkins
+    state: present
+  when: not flush_all_env | bool
+
+- name: Add user jenkins to group docker
+  user:
+    name: jenkins
+    groups: jenkins,docker
+    append: yes
+  when: not flush_all_env | bool
+
+- name: Delete configs files Jenkins
+  file:
+    path: "{{ jenkins_directory_conf }}"
+    state: absent
+  when: not flush_all_env | bool
+
+- name: Create directory Jenkins
+  file:
+    path: "{{ jenkins_directory_conf }}"
+    state: directory
+    mode: '0755'
+    owner: jenkins
+    group: jenkins
+  when: not flush_all_env | bool
+
+- name: Download configs and Extract to directory Jenkins
+  unarchive:
+    src: "{{ jenkins_url_config }}"
+    dest: "/"
+    remote_src: yes
+  when: not flush_all_env | bool
+
+- name: Start Jenkins service
+  systemd:
+    name: jenkins
+    state: restarted
+    enabled: yes
+  when: not flush_all_env | bool
+
+- name: Stop Jenkins service
+  systemd:
+    name: jenkins
+    state: stopped
+    enabled: no
+  when: flush_all_env | bool
+
+- name: Uninstall Jenkins
+  apt:
+    name: "{{item}}"
+    state: absent
+    update_cache: yes
+  loop:
+    - jenkins
+    - openjdk-11-jre
+  when: flush_all_env | bool
+
+- name: Delete configs files Jenkins
+  file:
+    path: "{{ jenkins_directory_conf }}"
+    state: absent
+  when: flush_all_env | bool

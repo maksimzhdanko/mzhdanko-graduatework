@@ -1,0 +1,23 @@
+project_network_name:      "network_project"
+project_network_subnet:    "172.5.27.0/24"
+project_ip_range:	         "172.5.27.0/28"
+progect_gateway: 	         "172.5.27.1"
+project_nginx_ip:	         "172.5.27.2"
+project_app_ip:		         "172.5.27.3" # If you change this ip, check Jenkinsfile in repo app.
+project_prometheus_ip:	   "172.5.27.7"
+project_grafana_ip:	       "172.5.27.8"
+project_alertmanager_ip:   "172.5.27.9"
+
+grafana_port:              "3000"
+prometheus_port:           "9090"
+alertmanager_port:         "9093"
+myapp_port:                "5000"
+
+nginx_service_name:        "nginx-mz"
+grafana_service_name:      "grafana-mz"
+prometheus_service_name:   "prometheus-mz"
+alertmanager_service_name: "alertmanager-mz"
+myapp_service_name:        "myapp-mz"
+
+nginx_name_host:           "mzhdanko.by"
+ip_server_prod:            "192.168.100.7"

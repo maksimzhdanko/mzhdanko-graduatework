@@ -1,0 +1,2 @@
+alertmanager_pull_docker_image: "prom/alertmanager"
+alertmanager_directory_configs: "/opt/docker/alertmanager"

@@ -1,0 +1,20 @@
+[Unit]
+Description=Start Grafana in Docker
+After=docker.service
+Requires=docker.service
+[Service]
+Restart=always
+ExecStartPre=-/usr/bin/docker rm {{ grafana_service_name }}
+ExecStart=/usr/bin/docker run --rm \
+--name {{ grafana_service_name }} \
+--net {{ project_network_name }} \
+--ip {{ project_grafana_ip }} \
+-p {{ grafana_port }}:{{ grafana_port }} \
+-e "GF_SECURITY_ADMIN_USER={{ grafana_admin_user }}" \
+-e "GF_SECURITY_ADMIN_PASSWORD={{ grafana_admin_password }}" \
+-v {{ grafana_directory_configs }}/datasources:/etc/grafana/provisioning/datasources \
+-v {{ grafana_directory_configs }}/dashboards:/etc/grafana/provisioning/dashboards \
+{{ grafana_pull_docker_image }}
+ExecStop=/usr/bin/docker stop {{ grafana_service_name }}
+[Install]
+WantedBy=multi-user.target

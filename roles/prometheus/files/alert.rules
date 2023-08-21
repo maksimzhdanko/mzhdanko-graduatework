@@ -1,0 +1,38 @@
+groups:
+  - name: Web-Check mzhdanko.by
+    rules:
+    - alert: Site mzhdanko.by is not available
+      expr: probe_success == 0
+      for: 1m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Web app is not available"
+        description: "Check web app in docker"
+
+  - name: Monitoring Infrastructure
+    rules:
+    - alert: High CPU Utilization
+      expr: avg(node_cpu{mode="system"}) > 80
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary: High CPU utilization on host {{ $labels.instance }}
+        description: The CPU utilization on host {{ $labels.instance }} has exceeded 80% for 5 minutes.   
+    - alert: High Memory Utilization
+      expr: node_memory_MemTotal - node_memory_MemFree < 0.9 * node_memory_MemTotal
+      for: 3m
+      labels:
+        severity: critical
+      annotations:
+        summary: High memory utilization on host {{ $labels.instance }}
+        description: The memory utilization on host {{ $labels.instance }} has exceeded 90% for 3 minutes.
+    - alert: Low Disk Space
+      expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 < 10
+      for: 3m
+      labels:
+        severity: critical
+      annotations:
+        summary: Low disk space detected
+        description: Available disk space is less than 10% for 3 minutes.

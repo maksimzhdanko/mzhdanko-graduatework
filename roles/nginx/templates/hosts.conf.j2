@@ -1,0 +1,99 @@
+server {
+    listen {{ nginx_port_http }};
+    server_name {{ nginx_name_host }};
+
+    access_log  /var/log/nginx/{{ nginx_name_host }}-access.log  main;
+    error_log   /var/log/nginx/{{ nginx_name_host }}.log;
+
+    location / {
+        proxy_set_header        Host $host:$server_port;
+        proxy_set_header        X-Real-IP $remote_addr;
+        proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header        X-Forwarded-Proto $scheme;
+        proxy_pass              http://{{ project_app_ip }}:{{ myapp_port }};
+        proxy_read_timeout      90;
+        proxy_redirect          http://{{ project_app_ip }}:{{ myapp_port }} {{ nginx_name_host }};
+        proxy_http_version      1.1;
+        proxy_request_buffering off;
+    }
+}
+
+server {
+    listen {{ nginx_port_http }};
+    server_name jenkins.{{ nginx_name_host }};
+
+    access_log  /var/log/nginx/jenkins.{{ nginx_name_host }}-access.log  main;
+    error_log   /var/log/nginx/jenkins.{{ nginx_name_host }}.log;
+
+    location / {
+        proxy_set_header        Host $host:$server_port;
+        proxy_set_header        X-Real-IP $remote_addr;
+        proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header        X-Forwarded-Proto $scheme;
+        proxy_pass              http://{{ ip_server_prod }}:8080;
+        proxy_read_timeout      90;
+        proxy_redirect          http://{{ ip_server_prod }}:8080 jenkins.{{ nginx_name_host }};
+        proxy_http_version      1.1;
+        proxy_request_buffering off;
+    }
+}
+
+server {
+    listen {{ nginx_port_http }};
+    server_name prometheus.{{ nginx_name_host }};
+
+    access_log  /var/log/nginx/prometheus.{{ nginx_name_host }}-access.log  main;
+    error_log   /var/log/nginx/prometheus.{{ nginx_name_host }}.log;
+
+    location / {
+        proxy_set_header        Host $host:$server_port;
+        proxy_set_header        X-Real-IP $remote_addr;
+        proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header        X-Forwarded-Proto $scheme;
+        proxy_pass              http://{{ project_prometheus_ip }}:{{ prometheus_port }};
+        proxy_read_timeout      90;
+        proxy_redirect          http://{{ project_prometheus_ip }}:{{ prometheus_port }} prometheus.{{ nginx_name_host }};
+        proxy_http_version      1.1;
+        proxy_request_buffering off;
+    }
+}
+
+server {
+    listen {{ nginx_port_http }};
+    server_name alertmanager.{{ nginx_name_host }};
+
+    access_log  /var/log/nginx/alertmanager.{{ nginx_name_host }}-access.log  main;
+    error_log   /var/log/nginx/alertmanager.{{ nginx_name_host }}.log;
+
+    location / {
+        proxy_set_header        Host $host:$server_port;
+        proxy_set_header        X-Real-IP $remote_addr;
+        proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header        X-Forwarded-Proto $scheme;
+        proxy_pass              http://{{ project_alertmanager_ip }}:{{ alertmanager_port }};
+        proxy_read_timeout      90;
+        proxy_redirect          http://{{ project_alertmanager_ip }}:{{ alertmanager_port }} alertmanager.{{ nginx_name_host }};
+        proxy_http_version      1.1;
+        proxy_request_buffering off;
+    }
+}
+
+server {
+    listen {{ nginx_port_http }};
+    server_name grafana.{{ nginx_name_host }};
+
+    access_log  /var/log/nginx/grafana.{{ nginx_name_host }}-access.log  main;
+    error_log   /var/log/nginx/grafana.{{ nginx_name_host }}.log;
+
+    location / {
+        proxy_set_header        Host $host:$server_port;
+        proxy_set_header        X-Real-IP $remote_addr;
+        proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header        X-Forwarded-Proto $scheme;
+        proxy_pass              http://{{ project_grafana_ip }}:{{ grafana_port }};
+        proxy_read_timeout      90;
+        proxy_redirect          http://{{ project_grafana_ip }}:{{ grafana_port }} grafana.{{ nginx_name_host }};
+        proxy_http_version      1.1;
+        proxy_request_buffering off;
+    }
+}

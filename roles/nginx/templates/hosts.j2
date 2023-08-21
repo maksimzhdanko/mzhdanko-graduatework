@@ -1,0 +1,7 @@
+127.0.0.1 localhost
+127.0.1.1 admin
+
+# The following lines are desirable for IPv6 capable hosts
+::1     ip6-localhost ip6-loopback
+
+{{ ip_server_prod }} {{ nginx_name_host }} grafana.{{ nginx_name_host }} jenkins.{{ nginx_name_host }} alertmanager.{{ nginx_name_host }} prometheus.{{ nginx_name_host }}

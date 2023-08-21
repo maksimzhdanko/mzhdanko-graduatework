@@ -1,0 +1,3 @@
+jenkins_directory_conf:    "/var/lib/jenkins"
+flush_all_env:
+  - false

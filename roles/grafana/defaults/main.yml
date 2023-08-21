@@ -1,0 +1,4 @@
+grafana_pull_docker_image: "grafana/grafana:latest"
+grafana_admin_user:        "admin"
+grafana_admin_password:    "grafana"
+grafana_directory_configs: "/opt/docker/grafana"

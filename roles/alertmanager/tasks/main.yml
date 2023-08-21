@@ -1,0 +1,50 @@
+- name: Pull docker image Alertmanager
+  docker_image:
+    source: pull
+    name: "{{ alertmanager_pull_docker_image }}"
+
+- name: Create directory for config files Alertmanager
+  file:
+    path: "{{ alertmanager_directory_configs }}"
+    state: directory
+    mode: '0755'
+  when: not flush_all_env | bool
+
+- name: Copy template config Alertmanager
+  template:
+    src: config.yml.j2
+    dest: "{{ alertmanager_directory_configs }}/config.yml"
+  when: not flush_all_env | bool
+
+- name: Copy template systemd Alertmanager
+  template:
+    src: docker-alertmanager.service.j2
+    dest: "/etc/systemd/system/docker-alertmanager.service"
+    owner: "root"
+    group: "root"
+  when: not flush_all_env | bool
+
+- name: Start docker-alertmanager.service
+  systemd:
+    name: docker-alertmanager.service
+    state: started
+    enabled: yes
+    daemon_reload: true
+  when: not flush_all_env | bool
+
+- name: Stop docker-alertmanager.service
+  systemd:
+    name: docker-alertmanager.service
+    state: stopped
+    enabled: no
+    daemon_reload: true
+  when: flush_all_env | bool
+
+- name: Remove directory with config files Alertmanager and systemd Alertmanager
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "/etc/systemd/system/docker-alertmanager.service"
+    - "{{ alertmanager_directory_configs }}"
+  when: flush_all_env | bool

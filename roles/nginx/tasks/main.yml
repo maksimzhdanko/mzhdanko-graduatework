@@ -1,0 +1,58 @@
+- name: Pull Docker image Nginx
+  docker_image:
+    source: pull
+    name: "{{ nginx_pull_docker_image }}"
+
+- name: Create directory for config files Nginx
+  file:
+    path: "{{ nginx_directory_hosts }}"
+    state: directory
+    mode: '0755'
+  when: not flush_all_env | bool
+
+- name: Copy template config file of hosts for Nginx
+  template:
+    src: hosts.conf.j2
+    dest: "{{ nginx_directory_hosts }}/hosts.conf"
+  when: not flush_all_env | bool
+
+- name: Copy template systemd Nginx
+  template:
+    src: docker-nginx.service.j2
+    dest: "/etc/systemd/system/docker-nginx.service"
+    owner: "root"
+    group: "root"
+  when: not flush_all_env | bool
+
+- name: Start docker-nginx.service
+  systemd:
+    name: docker-nginx.service
+    state: started
+    enabled: yes
+    daemon_reload: true
+  when: not flush_all_env | bool
+
+- name: Stop docker-nginx.service
+  systemd:
+    name: docker-nginx.service
+    state: stopped
+    enabled: no
+    daemon_reload: true
+  when: flush_all_env | bool
+
+- name: Remove directory with config files Nginx and systemd Nginx
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "/etc/systemd/system/docker-nginx.service"
+    - "{{ nginx_directory_hosts }}"
+  when: flush_all_env | bool
+
+- name: Add Hosts file on server Prod
+  template:
+    src: hosts.j2
+    dest: "/etc/hosts"
+    owner: "root"
+    group: "root"
+  when: not flush_all_env | bool

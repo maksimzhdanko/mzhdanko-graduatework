@@ -1,0 +1,50 @@
+#- name: Uninstall old versions
+#  apt:
+#    name: "{{item}}"
+#    state: absent
+#    update_cache: yes
+#  loop:
+#    - docker.io
+#    - docker-compose
+#    - docker-doc
+#    - podman-docker
+#  when: flush_all_env | bool
+- name: Install dependecies
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  loop: "{{ docker_packages_allow_apt_https }}"
+  
+- name: Create directory for GPG key
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Add GPG key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Add repository docker
+  apt_repository:
+    repo: "deb https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+    state: present
+          
+- name: Install Docker Engine, containerd, Docker Compose
+  apt:
+    name: "{{ item }}" 
+    state: latest
+    update_cache: yes
+  loop: "{{ docker_install_packages }}"
+  when: not flush_all_env | bool
+
+- name: Create Docker network for project
+  docker_network:
+    name: "{{ project_network_name }}"
+    ipam_config:
+      - subnet: "{{ project_network_subnet }}"
+        iprange: "{{ project_ip_range }}"
+        gateway: "{{ progect_gateway }}"
+  when: not flush_all_env | bool

@@ -1,0 +1,23 @@
+[Unit]
+Description=Start Alertmanager in Docker
+After=docker.service
+Requires=docker.service
+
+[Service]
+Restart=always
+ExecStartPre=-/usr/bin/docker rm {{ alertmanager_service_name }}
+ExecStart=/usr/bin/docker run --rm \
+--name {{ alertmanager_service_name }} \
+--net {{ project_network_name }} \
+--ip {{ project_alertmanager_ip }} \
+-p {{ alertmanager_port }}:{{ alertmanager_port }} \
+-v {{ alertmanager_directory_configs }}:/etc/alertmanager \
+-v prom_alert:/alertmanager/data:rw \
+-e "TZ=Europe/Minsk" \
+{{ alertmanager_pull_docker_image}} \
+--cluster.advertise-address "{{ project_alertmanager_ip }}:{{ alertmanager_port }}" \
+--config.file "/etc/alertmanager/config.yml" \
+--storage.path "/alertmanager/data"
+ExecStop=/usr/bin/docker stop {{ alertmanager_service_name }}
+[Install]
+WantedBy=multi-user.target

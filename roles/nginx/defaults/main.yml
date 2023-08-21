@@ -1,0 +1,6 @@
+nginx_pull_docker_image: "nginx:latest"
+nginx_port_http:         "80"
+nginx_port_https:        "443"
+nginx_directory_hosts:   "/opt/docker/nginx"
+flush_all_env:
+  - false

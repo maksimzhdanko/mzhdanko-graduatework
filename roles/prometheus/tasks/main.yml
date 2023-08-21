@@ -1,0 +1,82 @@
+- name: Pull docker image Prometheus
+  docker_image:
+    source: pull
+    name: "{{ prometheus_pull_docker_image }}"
+
+- name: Create directory for config files Prometheus
+  file:
+    path: "{{ prometheus_directory_configs }}"
+    state: directory
+    mode: '0755'
+  when: not flush_all_env | bool
+
+- name: Copy config files for Prometheus
+  copy:
+    src: "files/"
+    dest: "{{ prometheus_directory_configs }}"
+  when: not flush_all_env | bool
+
+- name: Copy template config Prometheus
+  template:
+    src: prometheus.yml.j2
+    dest: "{{ prometheus_directory_configs }}/prometheus.yml"
+  when: not flush_all_env | bool
+
+- name: Copy template systemd Prometheus
+  template:
+    src: docker-prometheus.service.j2
+    dest: "/etc/systemd/system/docker-prometheus.service"
+    owner: "root"
+    group: "root"
+  when: not flush_all_env | bool
+
+- name: Install Prometheus Node and Blackbox exporter on Host Server
+  apt:
+    name: "{{ item }}"
+    state: latest
+  loop:
+    - prometheus-node-exporter
+    - prometheus-blackbox-exporter
+  when: not flush_all_env | bool
+
+- name: Start docker-prometheus.service and Prometheus Exporters
+  systemd:
+    name: "{{ item }}"
+    state: started
+    enabled: yes
+    daemon_reload: true
+  loop:
+    - docker-prometheus.service
+    - prometheus-node-exporter
+    - prometheus-blackbox-exporter
+  when: not flush_all_env | bool
+
+- name: Stop docker-prometheus.service and Prometheus-node-exporter
+  systemd:
+    name: "{{ item }}"
+    state: stopped
+    enabled: no
+    daemon_reload: true
+  loop:
+    - docker-prometheus.service
+    - prometheus-node-exporter
+    - prometheus-blackbox-exporter
+  when: flush_all_env | bool
+
+- name: Remove directory with config files Prometheus and systemd Prometheus
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "/etc/systemd/system/docker-prometheus.service"
+    - "{{ prometheus_directory_configs }}"
+  when: flush_all_env | bool
+
+- name: Delete Prometheus exporters on Host Server
+  apt:
+    name: "{{ item }}"
+    state: absent
+  loop:
+    - prometheus-node-exporter
+    - prometheus-blackbox-exporter
+  when: flush_all_env | bool

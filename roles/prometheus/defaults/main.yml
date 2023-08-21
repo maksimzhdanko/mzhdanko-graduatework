@@ -1,0 +1,3 @@
+prometheus_pull_docker_image: "prom/prometheus:latest"
+prometheus_name_docker:       "prometheus"
+prometheus_directory_configs: "/opt/docker/prometheus"
