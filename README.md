@@ -22,7 +22,7 @@ This project uses Ansible to deploy infrastructure of project on VM (VirtualBox,
 # Starting a project deployment.
 
 ```
-ansible-playbook myproject.yml -e flush_all_env=false -i host.inv --ask-vault-pass
+ansible-playbook myproject.yml -i host.inv --ask-vault-pass
 ```
 
 To remove project components (not all):
@@ -69,7 +69,7 @@ Default data for accessing the web interface:\
 http://jenkins.mzhdanko.by/ \
 admin / jenkins
 
-Pipeline myapp runs a Jenkinsfile from a repo project that steps through:\
+Pipeline myapp runs a Jenkinsfile from a repo project that steps through:
 * Checks the repository git@github.com:maksimzhdanko/myproject.git
 * Building a docker image
 * Upload the image to the dockerhub repository: https://hub.docker.com/repository/docker/drowblr/myapp-mz/
@@ -108,12 +108,12 @@ The working directory with the host configuration file on the VM is - */opt/dock
 The container runs as a service *docker-alertmanager.service*, default container name is - *alertmanager-mz*.\
 Available via web interface: http://alertmanager.mzhdanko.by/ \
 Notifications configured in Telegram group.\
-You can change the site name, container name and its ip in the file *group_vars/*.\
+You can change the site name, container name and its ip in the file *group_vars/prod*.
 
-# Planned improvements..
+# Planned improvements.
 
 * Rendering jenkins in docker-container.
-* Deleting olf docker-images from builds.
+* Deleting old docker-images from builds.
 * Adding job to launch docker image running a specific version.
 
 # For improvement and "Give ansible-vault-pass".
